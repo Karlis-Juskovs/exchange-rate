@@ -3,9 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\DispatchImportExchangeRatesJob;
-use App\Jobs\ImportExchangeRatesJob;
 use App\Models\ExchangeRate;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -13,7 +11,9 @@ class ExchangeRateController extends Controller
 {
     public function index(Request $request): View
     {
-        return view('welcome');
+        [$exchangeRates, $dateArray] = ExchangeRate::getOrderedFilteredExchangeRates($request);
+
+        return view('exchange_rate.index', compact('exchangeRates', 'dateArray'));
     }
 
     /**
