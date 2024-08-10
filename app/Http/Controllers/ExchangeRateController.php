@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\DispatchImportExchangeRatesJob;
-use App\Jobs\ImportExchangeRatesJob;
 use App\Models\ExchangeRate;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
