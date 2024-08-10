@@ -37,9 +37,9 @@ class DispatchImportExchangeRatesJob implements ShouldQueue
 
         for ($i = 1; $i < $this->dayCount; $i++) {
             $date = $this->currentDate->subDay();
-            $exchangeRates = ExchangeRate::where('created_at', '=', $date)->get();
+            $exchangeRates = ExchangeRate::where('created_at', '=', $date->toDateString())
+                ->get();
 
-            //todo need to check if this if statement works
             if ($exchangeRates->count() === 0) {
                 ImportExchangeRatesJob::dispatch($date);
             }
