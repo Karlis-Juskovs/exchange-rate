@@ -12,13 +12,15 @@ class DispatchImportExchangeRatesJob implements ShouldQueue
 {
     use Queueable;
     private Carbon $currentDate;
+    private int $dayCount;
 
     /**
      * Create a new job instance.
      */
-    public function __construct()
+    public function __construct(int $dayCount = 7)
     {
         $this->currentDate = Carbon::now();
+        $this->dayCount = $dayCount;
     }
 
     /**
@@ -33,7 +35,7 @@ class DispatchImportExchangeRatesJob implements ShouldQueue
 
         ImportExchangeRatesJob::dispatch($this->currentDate);
 
-        for ($i = 1; $i < 7; $i++) {
+        for ($i = 1; $i < $this->dayCount; $i++) {
             $date = $this->currentDate->subDay();
             $exchangeRates = ExchangeRate::where('created_at', '=', $date)->get();
 
