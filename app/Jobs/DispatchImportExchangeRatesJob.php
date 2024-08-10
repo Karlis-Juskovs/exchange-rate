@@ -39,10 +39,14 @@ class DispatchImportExchangeRatesJob implements ShouldQueue
             $date = $this->currentDate->subDay();
             $exchangeRates = ExchangeRate::where('created_at', '=', $date)->get();
 
+            //todo need to check if this if statement works
             if ($exchangeRates->count() === 0) {
                 ImportExchangeRatesJob::dispatch($date);
             }
         }
+
+        CacheExchangeRateDefaultValuesAndFiltersJob::dispatch()
+            ->delay(now()->addMinutes(5));
     }
 
     /**
@@ -55,5 +59,8 @@ class DispatchImportExchangeRatesJob implements ShouldQueue
             // email service is needed
             // then $admin->notify(new ...); can be used
         }
+
+        CacheExchangeRateDefaultValuesAndFiltersJob::dispatch()
+            ->delay(now()->addMinutes(5));
     }
 }

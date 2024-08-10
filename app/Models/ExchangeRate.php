@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class ExchangeRate extends Model
 {
@@ -17,15 +18,15 @@ class ExchangeRate extends Model
     //------------------------------------------------------------------------------------------------------------------
     // Custom functions
     //------------------------------------------------------------------------------------------------------------------
-    public static function getOrderedFilteredExchangeRates(Request $request): array
+    public static function getOrderedFilteredExchangeRates(
+        ?array $currencyAbbreviations,
+        ?string $startDate,
+        ?string $endDate
+    ): ?array
     {
-        $currencyAbbreviations = [];
-        $startDate = '';
-        $endDate = '';
-
         $builder = self::query();
 
-        if (count($currencyAbbreviations) > 0) {
+        if ($currencyAbbreviations && count($currencyAbbreviations) > 0) {
             $builder->whereIn('currency_abbreviation', $currencyAbbreviations);
         }
 
@@ -35,9 +36,13 @@ class ExchangeRate extends Model
         }
         $builder->whereBetween('created_at', [$startDate, $endDate]);
 
-        $collection = $builder->orderBy('currency_abbreviation')
-            ->orderBy('created_at')
-            ->get();
+        if (($currencyAbbreviations && count($currencyAbbreviations) > 0) || ($startDate && $endDate)) {
+            $collection = $builder->orderBy('currency_abbreviation')
+                ->orderBy('created_at')
+                ->get();
+        } else {
+            return Cache::get('exchange_rate_default_values');
+        }
 
         $dateArray = $collection->pluck('created_at')->all();
         $dateArray = array_unique($dateArray);
