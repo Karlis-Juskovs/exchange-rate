@@ -11,18 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('currencies', function (Blueprint $table) {
-            $table->id();
-            $table->string('abbreviation', 10)->unique()->nullable(false);
-        });
-
         Schema::create('exchange_rates', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('currency_id')->nullable(false);
+            $table->string('currency_abbreviation', 10)->nullable(false);
             $table->decimal('rate', 11, 5)->nullable(false);
             $table->date('created_at')->nullable(false);
 
-            $table->foreign('currency_id')->references('id')->on('currency');
+            $table->unique(['currency_abbreviation', 'created_at']);
         });
     }
 
@@ -32,6 +27,5 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('exchange_rates');
-        Schema::dropIfExists('currencies');
     }
 };

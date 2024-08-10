@@ -2,6 +2,8 @@
 
 namespace App\Jobs;
 
+use App\Models\ExchangeRate;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -29,11 +31,27 @@ class DispatchImportExchangeRatesJob implements ShouldQueue
         day. Job utilizes transactions, so if there is at least one record in a given day, full correct set should also
         exist (it was either fully added or not added at all) */
 
-        ImportExchangeRatesJob::dispatch($this->currentDate->toDateString());
+        ImportExchangeRatesJob::dispatch($this->currentDate);
 
         for ($i = 1; $i < 7; $i++) {
-            $date = $this->currentDate->subDays($i);
-//            $exchangeRates =
+            $date = $this->currentDate->subDay();
+            $exchangeRates = ExchangeRate::where('created_at', '=', $date)->get();
+
+            if ($exchangeRates->count() === 0) {
+                ImportExchangeRatesJob::dispatch($date);
+            }
+        }
+    }
+
+    /**
+     * Handle a job failure.
+     */
+    public function failed(?Throwable $exception): void
+    {
+        /* Failed Jobs will also appear in Horizon panel */
+        if ($admin = User::find(config('app.admin_id'))) {
+            // email service is needed
+            // then $admin->notify(new ...); can be used
         }
     }
 }

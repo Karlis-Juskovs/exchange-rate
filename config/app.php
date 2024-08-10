@@ -123,4 +123,5 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'admin_id' => env('ADMIN_ID', '0'),
 ];
