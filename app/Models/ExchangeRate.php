@@ -20,8 +20,8 @@ class ExchangeRate extends Model
     //------------------------------------------------------------------------------------------------------------------
     public static function getOrderedFilteredExchangeRates(
         ?array $currencyAbbreviations,
-        ?string $startDate,
-        ?string $endDate
+        ?Carbon $startDate,
+        ?Carbon $endDate
     ): ?array
     {
         $builder = self::query();
@@ -30,13 +30,15 @@ class ExchangeRate extends Model
             $builder->whereIn('currency_abbreviation', $currencyAbbreviations);
         }
 
+        $initialDatesAreValid = true;
         if (!$startDate || !$endDate) {
             $endDate = Carbon::now();
             $startDate = $endDate->copy()->subWeek();
+            $initialDatesAreValid = false;
         }
-        $builder->whereBetween('created_at', [$startDate, $endDate]);
+        $builder->whereBetween('created_at', [$startDate->toDateString(), $endDate->toDateString()]);
 
-        if (($currencyAbbreviations && count($currencyAbbreviations) > 0) || ($startDate && $endDate)) {
+        if (($currencyAbbreviations && count($currencyAbbreviations) > 0) || $initialDatesAreValid) {
             $collection = $builder->orderBy('currency_abbreviation')
                 ->orderBy('created_at')
                 ->get();

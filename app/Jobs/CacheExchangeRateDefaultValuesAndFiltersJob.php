@@ -35,7 +35,7 @@ class CacheExchangeRateDefaultValuesAndFiltersJob implements ShouldQueue
             $endDate = Carbon::now();
             $startDate = $endDate->copy()->subWeek();
 
-            $collection = ExchangeRate::whereBetween('created_at', [$startDate, $endDate])
+            $collection = ExchangeRate::whereBetween('created_at', [$startDate->toDateString(), $endDate->toDateString()])
                 ->orderBy('currency_abbreviation')
                 ->orderBy('created_at')
                 ->get();

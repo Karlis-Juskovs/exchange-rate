@@ -30,10 +30,13 @@ class ExchangeRateController extends Controller
             'currencies.*' => 'string',
         ]);
 
+        $startDate = $validated['start_date'] ?? null;
+        $endDate = $validated['end_date'] ?? null;
+
         [$exchangeRates, $dateArray] = ExchangeRate::getOrderedFilteredExchangeRates(
             $validated['currencies'] ?? [],
-            $validated['start_date'] ?? null,
-            $validated['end_date'] ?? null
+            $startDate ? Carbon::parse($startDate) : null,
+            $endDate ? Carbon::parse($endDate) : null
         );
         [$currencies, $minDate, $maxDate] = Cache::get('exchange_rate_filters');
 
@@ -43,9 +46,9 @@ class ExchangeRateController extends Controller
             'currencies' => $currencies,
             'selectedCurrencies' => $validated['currencies'] ?? [],
             'minDate' => $minDate,
-            'start_date' => $validated['start_date'] ?? null,
+            'start_date' => $startDate,
             'maxDate' => $maxDate,
-            'end_date' => $validated['end_date'] ?? null,
+            'end_date' => $endDate,
         ]);
     }
 
